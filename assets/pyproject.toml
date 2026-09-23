@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devil-anti-cheat"
+version = "0.3.0"
+description = "Signed file checks and server-controlled gameplay reference SDK"
+requires-python = ">=3.10"
+dependencies = ["cryptography>=46.0.0,<47"]
+
+[project.scripts]
+devil-anticheat = "devil_anticheat.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["devil_anticheat*"]
