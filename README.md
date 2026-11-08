@@ -1,40 +1,31 @@
-# Devil Anti-Cheat — v0.2
+# Devil Anti-Cheat
 
-A server-authoritative anti-cheat SDK. The server owns the simulation; the
-client only reports intent. Bans are reversible and nothing is hidden on or
-written to the player's machine.
+A server-authoritative anti-cheat SDK for multiplayer games. The server owns the
+game simulation; the client reports intent and integrity signals. Enforcement is
+reversible and leaves nothing behind on the player's machine.
 
-## This repo is the PUBLIC half, on purpose
+## Features
 
-Devil is split into a public client SDK and a private server core, for a
-specific security reason:
+- Server-side validation of movement, aim, hits, and visibility
+- Hardware-hash blacklisting (reversible, enforced on your server)
+- Ed25519 signed-manifest file-integrity verification
+- Virtual-machine detection as a scored signal
+- Configurable blacklist client for your own backend
+- Drop-in launch gate (`DevilClient`)
 
-- **Client code can't be protected by hiding it** — it already runs on the
-  player's machine, so a cheater has it regardless. Publishing it costs you
-  nothing, and open client code is easier to trust and audit.
-- **The things worth keeping secret** — detection heuristics, scoring
-  thresholds, the authoritative simulation — stay private by **running on your
-  server**, not by obfuscation. Security through obscurity is not the plan;
-  keeping the deciding logic off the client is.
-
-So this repo ships the real client SDK and the *interfaces* of the server
-core. It does **not** contain the server core's implementation (its heuristics,
-weights, and thresholds). That's not a fake or stripped build to fool anyone —
-it's the correct client/server boundary, stated honestly. You implement the
-server core privately against `server_core_interface`.
+## Repository layout
 
 ```
-devil-v0.2/
-├── client_sdk/                 # PUBLIC — ships with your game
-│   ├── devil_client.py         #   DevilClient.verify_launch() — the entry point
-│   ├── fingerprint.py          #   user-mode hardware hash
+devil-anti-cheat/
+├── client_sdk/                 # Client SDK that ships with your game
+│   ├── devil_client.py         #   DevilClient.verify_launch() — entry point
+│   ├── fingerprint.py          #   hardware-hash collection
 │   ├── integrity.py            #   Ed25519 signed-manifest verify
 │   ├── vmsignal.py             #   VM detection (scored signal)
-│   └── blacklist_client.py     #   configurable client for your ban server
-├── server_core_interface/      # PUBLIC — contracts only, no implementation
-│   └── __init__.py             #   AuthorityCore / DetectionBackend / BlacklistStore
-├── docs/
-│   └── index.html              # GitHub Pages landing page
+│   └── blacklist_client.py     #   client for your ban server
+├── server_core_interface/      # Server-side contracts to implement
+├── index.html                  # Project landing page (GitHub Pages)
+├── assets/                     # Landing-page assets
 └── devil_protocol.sample.json  # copy to devil_protocol.json and edit
 ```
 
@@ -57,24 +48,27 @@ if not d["allow"]:
     show(d["message"]); raise SystemExit(1)
 ```
 
-`verify_launch` runs, in order: game-file integrity → VM policy (optional,
-configurable) → hardware blacklist (your server). The ban decision is a server
-read, so an approved appeal lifts it with one write — reversible, no trace left
-on the player's PC.
+`verify_launch` runs, in order: file integrity → VM policy (optional,
+configurable) → hardware blacklist. The ban decision is a server read, so an
+approved appeal lifts it with one write.
 
-## What's deliberately NOT here
+## Configuration
 
-- **The server core implementation.** Private by design (see above).
-- **A kernel driver.** v0.2 is user-mode only. A kernel anti-cheat driver needs
-  an EV certificate, Microsoft attestation signing, and serious auditing — and
-  the server-authoritative core already blocks the core gameplay cheats without
-  one. Add a signed, audited kernel reader later only if the economics justify
-  it.
-- **Obfuscation/anti-decompile tricks.** "Undecompilable" is a myth; the only
-  code a cheater genuinely can't crack is the code you never ship them — your
-  server core.
+Copy `devil_protocol.sample.json` to `devil_protocol.json` and set your
+endpoint, auth, field mapping, timeouts, and fail mode. The SDK reads it at
+startup.
 
-## Publishing the landing page
+## Server side
 
-`docs/index.html` is a self-contained GitHub Pages site. In your repo settings,
-set Pages to serve from the `docs/` folder on your default branch.
+Implement the contracts in `server_core_interface/` on your backend — the
+authoritative simulation, detection scoring, and ban store. The SDK talks to
+them over your configured protocol.
+
+## Landing page
+
+`index.html` is a self-contained page served from the repository root via
+GitHub Pages (Settings → Pages → deploy from the default branch, root folder).
+
+## License
+
+Add your license here.

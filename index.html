@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Devil Anti-Cheat</title>
 <meta name="description" content="Devil Anti-Cheat — a server-authoritative anti-cheat SDK. Server owns the truth, the client only reports, bans are reversible.">
 <link rel="icon" type="image/png" href="assets/devil-logo.png">
@@ -254,5 +257,16 @@ d = client.verify_launch(game_root=<span class="str">"."</span>, signed_manifest
   Devil Anti-Cheat v0.2 · Server-authoritative · Reversible by design<br>
   Built as an open client SDK with a private server core.
 </div></footer>
+<script>
+  // Always pull fresh assets on open, so updates show without a hard refresh.
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("img").forEach(function (img) {
+      var u = img.getAttribute("src");
+      if (u && u.indexOf("//") === -1) {
+        img.src = u + (u.indexOf("?") > -1 ? "&" : "?") + "v=" + Date.now();
+      }
+    });
+  });
+</script>
 </body>
 </html>
