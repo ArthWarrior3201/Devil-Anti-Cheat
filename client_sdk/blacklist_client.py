@@ -28,6 +28,7 @@ import json
 import time
 import urllib.request
 import urllib.error
+import urllib.parse
 
 
 DEFAULTS = {
@@ -87,7 +88,6 @@ def _default_transport(req_url, payload, headers, method, timeout, verify_tls):
     data = json.dumps(payload).encode() if method == "POST" else None
     url = req_url
     if method == "GET":
-        import urllib.parse
         url = req_url + "?" + urllib.parse.urlencode(payload)
     r = urllib.request.Request(url, data=data, headers=headers, method=method)
     with urllib.request.urlopen(r, timeout=timeout, context=ctx) as resp:
