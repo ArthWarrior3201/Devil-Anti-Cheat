@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Devil Anti-Cheat</title>
+<meta name="description" content="Devil Anti-Cheat — a server-authoritative anti-cheat SDK. Server owns the truth, the client only reports, bans are reversible.">
+<link rel="icon" type="image/png" href="assets/devil-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06060b; --bg2:#0b0a16; --panel:#111022; --panel2:#15132b;
+    --ink:#eceaf6; --muted:#a39fc0; --line:#242244;
+    --violet:#8b5cf6; --indigo:#6366f1; --cyan:#22d3ee; --rose:#fb7185;
+    --glow:0 0 48px rgba(139,92,246,.35);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:Inter,system-ui,sans-serif;line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  h1,h2,h3{font-family:"Space Grotesk",sans-serif;line-height:1.1;margin:0}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  .nebula{
+    position:fixed;inset:0;z-index:-1;
+    background:
+      radial-gradient(60% 50% at 15% 0%, rgba(99,102,241,.28), transparent 60%),
+      radial-gradient(50% 50% at 85% 10%, rgba(34,211,238,.18), transparent 60%),
+      radial-gradient(70% 60% at 50% 100%, rgba(139,92,246,.22), transparent 60%),
+      var(--bg);
+  }
+  .stars{position:fixed;inset:0;z-index:-1;opacity:.5;
+    background-image:radial-gradient(1px 1px at 20% 30%,#fff,transparent),
+      radial-gradient(1px 1px at 70% 60%,#fff,transparent),
+      radial-gradient(1px 1px at 40% 80%,#cbd5ff,transparent),
+      radial-gradient(1px 1px at 90% 20%,#fff,transparent),
+      radial-gradient(1px 1px at 55% 15%,#e0e7ff,transparent);
+    background-size:cover;}
+  /* nav */
+  nav{position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);
+    background:rgba(6,6,11,.6);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:"Space Grotesk";font-weight:700;letter-spacing:.3px}
+  .brand img{height:40px;width:auto;display:block;mix-blend-mode:screen;
+    filter:drop-shadow(0 0 14px rgba(239,68,68,.5))}
+  nav .links{display:flex;gap:26px;font-size:14px;color:var(--muted)}
+  nav .links a:hover{color:var(--ink)}
+  .tag{font-size:11px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;color:var(--cyan)}
+  /* hero */
+  header{padding:72px 0 72px;text-align:center}
+  .herologo{width:min(460px,80vw);height:auto;margin:0 auto 24px;display:block;
+    mix-blend-mode:screen;filter:drop-shadow(0 0 70px rgba(239,68,68,.45))}
+  header h1{font-size:clamp(40px,8vw,74px);font-weight:700;letter-spacing:-1px}
+  header h1 .g{background:linear-gradient(120deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header p.lead{max-width:620px;margin:22px auto 0;color:var(--muted);font-size:18px}
+  .cta{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap}
+  .btn{padding:13px 24px;border-radius:12px;font-weight:600;font-size:15px;border:1px solid transparent;cursor:pointer;transition:.2s}
+  .btn.primary{background:linear-gradient(120deg,var(--violet),var(--indigo));color:#fff;box-shadow:var(--glow)}
+  .btn.primary:hover{transform:translateY(-2px)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--violet)}
+  .pillrow{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+  .pill{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 13px;background:rgba(255,255,255,.02)}
+  /* sections */
+  section{padding:66px 0}
+  .eyebrow{color:var(--cyan);font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+  h2{font-size:clamp(26px,4vw,38px);margin:10px 0 0;font-weight:600}
+  .sub{color:var(--muted);margin-top:12px;max-width:640px}
+  /* feature grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px;transition:.2s}
+  .card:hover{border-color:var(--violet);transform:translateY(-3px)}
+  .card .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;margin-bottom:14px;
+    background:rgba(139,92,246,.15);font-size:20px}
+  .card h3{font-size:17px;font-weight:600}
+  .card p{color:var(--muted);font-size:14px;margin:8px 0 0}
+  /* architecture */
+  .arch{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch;margin-top:40px}
+  .arch .box{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+  .arch .box h3{font-size:16px;margin-bottom:10px}
+  .arch .box ul{margin:0;padding-left:18px;color:var(--muted);font-size:13.5px}
+  .arch .box.pub{border-color:rgba(34,211,238,.4)}
+  .arch .box.priv{border-color:rgba(251,113,133,.4)}
+  .arch .mid{display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center}
+  .arch .mid .line{writing-mode:vertical-rl;letter-spacing:2px;opacity:.6}
+  .lbl{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;margin-bottom:12px;font-weight:600}
+  .lbl.pub{background:rgba(34,211,238,.14);color:var(--cyan)}
+  .lbl.priv{background:rgba(251,113,133,.14);color:var(--rose)}
+  /* steps */
+  .steps{counter-reset:s;margin-top:40px;display:grid;gap:14px}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:18px;align-items:start;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .step .n{counter-increment:s;width:44px;height:44px;border-radius:11px;display:grid;place-items:center;
+    font-family:"Space Grotesk";font-weight:700;background:linear-gradient(135deg,var(--violet),var(--indigo));color:#fff}
+  .step .n::before{content:counter(s)}
+  .step h3{font-size:16px}
+  .step p{color:var(--muted);font-size:14px;margin:6px 0 0}
+  pre{background:#070610;border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;margin:14px 0 0;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#d7d4f0}
+  .cmt{color:#6f6a93}
+  .kw{color:#c4b5fd}.str{color:#7dd3fc}
+  /* download */
+  .dl{background:linear-gradient(135deg,rgba(139,92,246,.14),rgba(34,211,238,.08));
+    border:1px solid var(--line);border-radius:24px;padding:48px;text-align:center;margin-top:24px}
+  .dl h2{font-size:30px}
+  .dl .note{font-size:12.5px;color:var(--muted);margin-top:16px;max-width:520px;margin-left:auto;margin-right:auto}
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
+  @media(max-width:760px){
+    .grid{grid-template-columns:1fr}
+    .arch{grid-template-columns:1fr}
+    .arch .mid .line{writing-mode:horizontal-tb}
+    nav .links{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="nebula"></div><div class="stars"></div>
+
+<nav><div class="wrap">
+  <div class="brand"><img src="assets/devil-logo.png" alt="Devil Anti-Cheat"> <span class="tag">v0.2</span></div>
+  <div class="links">
+    <a href="#what">Overview</a><a href="#features">Features</a>
+    <a href="#arch">Architecture</a><a href="#integrate">Integrate</a><a href="#download">Download</a>
+  </div>
+</div></nav>
+
+<header><div class="wrap">
+  <img class="herologo" src="assets/devil-logo.png" alt="Devil Anti-Cheat">
+  <h1>Cheaters lose when the<br><span class="g">server owns the truth.</span></h1>
+  <p class="lead">Devil Anti-Cheat is a server-authoritative anti-cheat SDK. The client only reports intent — the server decides what's real. Bans are reversible and nothing is hidden on the player's machine.</p>
+  <div class="cta">
+    <a class="btn primary" href="#integrate">Get started</a>
+    <a class="btn ghost" href="#download">Download agent</a>
+  </div>
+  <div class="pillrow">
+    <span class="pill">Server-authoritative</span>
+    <span class="pill">Hardware-hash bans</span>
+    <span class="pill">Signed integrity</span>
+    <span class="pill">Reversible &amp; appealable</span>
+    <span class="pill">User-mode SDK</span>
+  </div>
+</div></header>
+
+<section id="what"><div class="wrap">
+  <div class="eyebrow">What it is</div>
+  <h2>An anti-cheat that doesn't trust the client</h2>
+  <p class="sub">Most cheats work by lying to the server — "I'm here," "I hit them," "I can see everyone." Devil flips the model: the server simulates movement, hits and visibility, and the client only ever sends what it <em>wants</em> to do. A client can't cheat about a result it was never allowed to assert.</p>
+</div></section>
+
+<section id="features"><div class="wrap">
+  <div class="eyebrow">Features</div>
+  <h2>What's in the box</h2>
+  <div class="grid">
+    <div class="card"><div class="ic">🛡️</div><h3>Server authority</h3><p>Movement, aim, hit detection and visibility are resolved on your server. Aimbot, wallhack and speedhack lose their footing.</p></div>
+    <div class="card"><div class="ic">🧬</div><h3>Hardware-hash bans</h3><p>Flag a machine by an opaque hardware hash — never raw IDs, never the OS key. The ban lives on your server, so it's reversible.</p></div>
+    <div class="card"><div class="ic">✍️</div><h3>Signed integrity</h3><p>Verify the game's own files against an Ed25519-signed manifest. Patched binaries are caught; forged manifests are rejected.</p></div>
+    <div class="card"><div class="ic">🖥️</div><h3>VM signal</h3><p>Detects virtual machines as a scored signal your backend can weigh — configurable, because it's one input among many.</p></div>
+    <div class="card"><div class="ic">♻️</div><h3>Reversible enforcement</h3><p>Every ban carries evidence and a rule version. Appeals lift a ban with one server write. No permanent damage, ever.</p></div>
+    <div class="card"><div class="ic">🔌</div><h3>Drop-in SDK</h3><p>One <code>DevilClient</code> call at launch. Point it at your server with a protocol file and you're wired in.</p></div>
+  </div>
+</div></section>
+
+<section id="arch"><div class="wrap">
+  <div class="eyebrow">Architecture</div>
+  <h2>Public SDK, private core</h2>
+  <p class="sub">The client code is open because hiding it buys nothing — it already runs on the player's PC. The parts worth protecting stay private by living on your server, not behind obfuscation.</p>
+  <div class="arch">
+    <div class="box pub">
+      <span class="lbl pub">PUBLIC · ships with your game</span>
+      <h3>Client SDK</h3>
+      <ul>
+        <li>Launch gate &amp; policy</li>
+        <li>Hardware fingerprint (user-mode)</li>
+        <li>Signed-manifest verification</li>
+        <li>VM signal collection</li>
+        <li>Blacklist client (talks to your server)</li>
+      </ul>
+    </div>
+    <div class="mid"><span class="line">— intent / signals —→</span></div>
+    <div class="box priv">
+      <span class="lbl priv">PRIVATE · runs on your server</span>
+      <h3>Devil Core</h3>
+      <ul>
+        <li>Authoritative simulation</li>
+        <li>Detection scoring &amp; thresholds</li>
+        <li>Review &amp; evidence records</li>
+        <li>Hardware blacklist store</li>
+        <li>Appeal handling</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="integrate"><div class="wrap">
+  <div class="eyebrow">Integration</div>
+  <h2>Wire it into your game</h2>
+  <div class="steps">
+    <div class="step"><div class="n"></div><div>
+      <h3>Add the SDK</h3>
+      <p>Drop the <code>client_sdk</code> package into your game client.</p>
+    </div></div>
+    <div class="step"><div class="n"></div><div>
+      <h3>Generate your signing keys</h3>
+      <p>Create an Ed25519 keypair. Keep the private key on your build server; embed the public key in your game.</p>
+      <pre><span class="cmt"># one time, on your build machine</span>
+<span class="kw">from</span> client_sdk <span class="kw">import</span> integrity
+priv, pub = integrity.generate_keypair()  <span class="cmt"># store priv secretly</span></pre>
+    </div></div>
+    <div class="step"><div class="n"></div><div>
+      <h3>Sign a manifest at release</h3>
+      <p>Hash your shipped files and sign the manifest. Ship the signed manifest with the build.</p>
+      <pre>man = integrity.build_manifest(root, files, version=<span class="str">"1.0.0"</span>)
+signed = integrity.sign_manifest(man, priv)</pre>
+    </div></div>
+    <div class="step"><div class="n"></div><div>
+      <h3>Point the SDK at your server</h3>
+      <p>Drop a <code>devil_protocol.json</code> next to your client (endpoint, auth, field names, fail-mode). See the sample in the repo.</p>
+    </div></div>
+    <div class="step"><div class="n"></div><div>
+      <h3>Check at launch</h3>
+      <p>One call gates the launch: integrity → VM policy → hardware blacklist.</p>
+      <pre><span class="kw">from</span> client_sdk <span class="kw">import</span> DevilClient, LaunchPolicy
+
+client = DevilClient(public_key_hex=PUB, protocol_config_path=<span class="str">"devil_protocol.json"</span>)
+d = client.verify_launch(game_root=<span class="str">"."</span>, signed_manifest=signed, policy=LaunchPolicy())
+<span class="kw">if not</span> d[<span class="str">"allow"</span>]:
+    show(d[<span class="str">"message"</span>]); exit(1)   <span class="cmt"># e.g. "SORRY, YOU ARE BANNED"</span></pre>
+    </div></div>
+    <div class="step"><div class="n"></div><div>
+      <h3>Run the authoritative core on your server</h3>
+      <p>Implement the <code>server_core_interface</code> contracts so movement, hits and visibility are resolved server-side. This is where real anti-cheat strength lives.</p>
+    </div></div>
+  </div>
+</div></section>
+
+<section id="download"><div class="wrap">
+  <div class="dl">
+    <div class="eyebrow">Download</div>
+    <h2>Devil Agent (user-mode)</h2>
+    <p class="sub" style="margin-left:auto;margin-right:auto">The user-mode client agent and SDK — everything that runs on the player's machine.</p>
+    <div class="cta"><a class="btn primary" href="downloads/devil-agent-0.2.0.zip">Download Devil Agent v0.2.0</a></div>
+    <p class="note">This build is user-mode only. A kernel-level driver is not part of v0.2 — kernel anti-cheat requires EV-signed, Microsoft-attested drivers and professional auditing, and the server-authoritative core already blocks the core gameplay cheats without one.</p>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  Devil Anti-Cheat v0.2 · Server-authoritative · Reversible by design<br>
+  Built as an open client SDK with a private server core.
+</div></footer>
+</body>
+</html>
