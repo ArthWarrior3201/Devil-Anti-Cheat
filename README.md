@@ -1,6 +1,6 @@
 # Devil Anti-Cheat
 
-A server-authoritative anti-cheat SDK for multiplayer games. The server owns the
+A server-authoritative anti-cheat SDK for video games. The server owns the
 game simulation; the client reports intent and integrity signals. Enforcement is
 reversible and leaves nothing behind on the player's machine.
 
