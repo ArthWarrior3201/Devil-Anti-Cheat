@@ -25,22 +25,33 @@ urllib over HTTPS with TLS verification on.
 from __future__ import annotations
 from dataclasses import dataclass, field
 import json
+import secrets
 import time
 import urllib.request
 import urllib.error
 import urllib.parse
+
+try:
+    from . import verdict_auth
+except ImportError:
+    import verdict_auth
 
 
 DEFAULTS = {
     "endpoint": "https://localhost/v1/check",
     "method": "POST",
     "auth": {"type": "none"},
-    "request": {"hwid_field": "hwid", "static": {}},
-    "response": {"banned_path": "banned", "reason_path": "reason"},
+    "request": {"hwid_field": "hwid", "nonce_field": "nonce", "static": {}},
+    "response": {"banned_path": "banned", "reason_path": "reason",
+                 "sig_path": "sig"},
     "timeout_s": 4.0,
     "retries": 2,
     "verify_tls": True,
     "fail_mode": "open",
+    # When set, the client signs a per-request nonce into the payload and
+    # verifies the server's signed verdict. A fake local server can't forge it.
+    "server_public_key": "",        # hex Ed25519 public key, embedded in game
+    "require_signed_response": False,
 }
 
 
@@ -75,6 +86,7 @@ class CheckResult:
     banned: bool
     reason: str = ""
     ok: bool = True          # False => could not reach/parse server
+    trusted: bool = True     # False => verdict's signature did not verify
     note: str = ""
 
 
@@ -110,8 +122,15 @@ class BlacklistClient:
 
     def check(self, hwid: str) -> CheckResult:
         cfg = self.cfg
-        payload = dict(cfg["request"].get("static", {}))
-        payload[cfg["request"].get("hwid_field", "hwid")] = hwid
+        req = cfg.get("request", {})
+        resp_cfg = cfg.get("response", {})
+        payload = dict(req.get("static", {}))
+        payload[req.get("hwid_field", "hwid")] = hwid
+        # Per-request nonce so a signed verdict can't be captured and replayed.
+        nonce = secrets.token_hex(16)
+        payload[req.get("nonce_field", "nonce")] = nonce
+        require_signed = bool(cfg.get("require_signed_response"))
+        pub = cfg.get("server_public_key", "")
         last_err = None
         for attempt in range(cfg.get("retries", 2) + 1):
             try:
@@ -119,15 +138,21 @@ class BlacklistClient:
                     cfg["endpoint"], payload, self._headers(),
                     cfg.get("method", "POST"), cfg.get("timeout_s", 4.0),
                     cfg.get("verify_tls", True))
-                banned = bool(_dig(body, cfg["response"]["banned_path"], False))
-                reason = str(_dig(body, cfg["response"]["reason_path"], "") or "")
-                return CheckResult(banned, reason, ok=True)
+                banned = bool(_dig(body, resp_cfg["banned_path"], False))
+                reason = str(_dig(body, resp_cfg["reason_path"], "") or "")
+                trusted = True
+                if require_signed:
+                    sig = str(_dig(body, resp_cfg.get("sig_path", "sig"), "")
+                              or "")
+                    trusted = verdict_auth.verify_verdict(
+                        nonce, banned, reason, sig, pub)
+                return CheckResult(banned, reason, ok=True, trusted=trusted)
             except Exception as e:              # network/TLS/parse problem
                 last_err = e
                 time.sleep(0.05 * (attempt + 1))
-        # Could not reach the server: apply the company's fail policy.
+        # Could not reach the server: unverifiable, apply the fail policy.
         if cfg.get("fail_mode", "open") == "closed":
             return CheckResult(True, "server unreachable (fail-closed)",
-                               ok=False, note=str(last_err))
-        return CheckResult(False, "", ok=False,
+                               ok=False, trusted=False, note=str(last_err))
+        return CheckResult(False, "", ok=False, trusted=False,
                            note=f"server unreachable (fail-open): {last_err}")

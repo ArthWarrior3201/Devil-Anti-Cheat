@@ -81,5 +81,18 @@ class DevilClient:
                     "message": "SORRY, YOU ARE BANNED",
                     "detail": {"reason": res.reason, "hwid": hwid}}
 
+        # If signed verdicts are required, an UNTRUSTED "not banned" (a fake
+        # local server, a tampered or unsigned reply) must not pass. This is
+        # what stops a cheat from pointing the client at a server that just
+        # says "ok". A genuinely unreachable real server lands here too — when
+        # you require signing you are choosing fail-closed on trust.
+        if self.cfg.get("require_signed_response") and not res.trusted:
+            return {"allow": False, "code": "UNVERIFIED",
+                    "message": "Couldn't verify your status with the server. "
+                               "Check your connection and try again.",
+                    "detail": {"hwid": hwid, "server_reachable": res.ok,
+                               "note": res.note}}
+
         return {"allow": True, "code": "OK", "message": "Launch allowed.",
-                "detail": {"hwid": hwid, "server_reachable": res.ok}}
+                "detail": {"hwid": hwid, "server_reachable": res.ok,
+                           "trusted": res.trusted}}
