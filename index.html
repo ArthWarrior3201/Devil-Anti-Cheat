@@ -50,15 +50,13 @@
     background:rgba(6,6,11,.6);border-bottom:1px solid var(--line)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
   .brand{display:flex;align-items:center;gap:10px;font-family:"Space Grotesk";font-weight:700;letter-spacing:.3px}
-  .brand img{height:40px;width:auto;display:block;mix-blend-mode:screen;
-    filter:drop-shadow(0 0 14px rgba(239,68,68,.5))}
+  .brand img{height:44px;width:auto;display:block;
+    filter:drop-shadow(0 0 14px rgba(239,68,68,.45))}
   nav .links{display:flex;gap:26px;font-size:14px;color:var(--muted)}
   nav .links a:hover{color:var(--ink)}
   .tag{font-size:11px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;color:var(--cyan)}
   /* hero */
-  header{padding:72px 0 72px;text-align:center}
-  .herologo{width:min(460px,80vw);height:auto;margin:0 auto 24px;display:block;
-    mix-blend-mode:screen;filter:drop-shadow(0 0 70px rgba(239,68,68,.45))}
+  header{padding:92px 0 72px;text-align:center}
   header h1{font-size:clamp(40px,8vw,74px);font-weight:700;letter-spacing:-1px}
   header h1 .g{background:linear-gradient(120deg,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
   header p.lead{max-width:620px;margin:22px auto 0;color:var(--muted);font-size:18px}
@@ -127,7 +125,7 @@
 <div class="nebula"></div><div class="stars"></div>
 
 <nav><div class="wrap">
-  <div class="brand"><img src="assets/devil-logo.png" alt="Devil Anti-Cheat"> <span class="tag">v0.2</span></div>
+  <div class="brand"><img src="assets/devil-logo.png" alt="Devil Anti-Cheat"></div>
   <div class="links">
     <a href="#what">Overview</a><a href="#features">Features</a>
     <a href="#arch">Architecture</a><a href="#integrate">Integrate</a><a href="#download">Download</a>
@@ -135,7 +133,6 @@
 </div></nav>
 
 <header><div class="wrap">
-  <img class="herologo" src="assets/devil-logo.png" alt="Devil Anti-Cheat">
   <h1>Cheaters lose when the<br><span class="g">server owns the truth.</span></h1>
   <p class="lead">Devil Anti-Cheat is a server-authoritative anti-cheat SDK. The client only reports intent — the server decides what's real. Bans are reversible and nothing is hidden on the player's machine.</p>
   <div class="cta">
