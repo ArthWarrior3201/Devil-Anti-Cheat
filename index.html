@@ -258,15 +258,19 @@ d = client.verify_launch(game_root=<span class="str">"."</span>, signed_manifest
   Built as an open client SDK with a private server core.
 </div></footer>
 <script>
-  // Always pull fresh assets on open, so updates show without a hard refresh.
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("img").forEach(function (img) {
-      var u = img.getAttribute("src");
-      if (u && u.indexOf("//") === -1) {
-        img.src = u + (u.indexOf("?") > -1 ? "&" : "?") + "v=" + Date.now();
-      }
+  // On the live site, pull fresh assets on open so updates show without a
+  // hard refresh. Skipped for local file:// previews (query strings can break
+  // relative file paths there).
+  if (location.protocol.indexOf("http") === 0) {
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll("img").forEach(function (img) {
+        var u = img.getAttribute("src");
+        if (u && u.indexOf("//") === -1) {
+          img.src = u + (u.indexOf("?") > -1 ? "&" : "?") + "v=" + Date.now();
+        }
+      });
     });
-  });
+  }
 </script>
 </body>
 </html>
