@@ -50,7 +50,10 @@ class DevilClient:
 
     def hardware_hash(self, policy: LaunchPolicy) -> str:
         fp = fingerprint.collect()
-        return fingerprint.fingerprint_hash(fp["components"], policy.deployment_salt)
+        # The ban scope IS the hash salt, so the same machine hashes differently
+        # per scope and a ban can't leak across unrelated games/brands.
+        salt = self.cfg.get("scope") or policy.deployment_salt
+        return fingerprint.fingerprint_hash(fp["components"], salt)
 
     def verify_launch(self, game_root: str, signed_manifest: dict,
                       policy: LaunchPolicy | None = None) -> dict:

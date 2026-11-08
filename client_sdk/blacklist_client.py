@@ -41,7 +41,13 @@ DEFAULTS = {
     "endpoint": "https://localhost/v1/check",
     "method": "POST",
     "auth": {"type": "none"},
-    "request": {"hwid_field": "hwid", "nonce_field": "nonce", "static": {}},
+    "request": {"hwid_field": "hwid", "nonce_field": "nonce",
+                "scope_field": "scope", "static": {}},
+    # Ban namespace. The hardware hash is salted with this, so the same machine
+    # hashes differently under different scopes — a ban under "studio-a" cannot
+    # match a lookup under "studio-b". Share a scope across a studio's games to
+    # share bans; use a distinct one to isolate an unrelated brand.
+    "scope": "",
     "response": {"banned_path": "banned", "reason_path": "reason",
                  "sig_path": "sig"},
     "timeout_s": 4.0,
@@ -126,6 +132,9 @@ class BlacklistClient:
         resp_cfg = cfg.get("response", {})
         payload = dict(req.get("static", {}))
         payload[req.get("hwid_field", "hwid")] = hwid
+        # Scope travels with the request so a multi-game server can key bans by
+        # (scope, hwid) too — defense in depth on top of the salted hash.
+        payload[req.get("scope_field", "scope")] = cfg.get("scope", "")
         # Per-request nonce so a signed verdict can't be captured and replayed.
         nonce = secrets.token_hex(16)
         payload[req.get("nonce_field", "nonce")] = nonce
